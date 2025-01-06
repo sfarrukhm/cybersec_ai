@@ -19,7 +19,7 @@ from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 from typing import TypedDict, List, Dict, Union
 
-
+vt_api_key=os.getenv('virustotal_api')
 
 
 
@@ -27,23 +27,29 @@ def main():
     st.set_page_config(page_title="IP Investigator",page_icon=":dark_sunglasses:")
     with st.sidebar:
         
-        vt_api_key=st.text_input(label="Enter your VirusTotal API key")
         st.subheader("Query")
         query=st.chat_input(key="user_input",)
 
         @tool
         def get_ip_all_details(input_ip:str):
             """Get details related to provided IP address"""
+            ip_to_search=input_ip
 
+            # Results from virus total
             headers = {
             "accept": "application/json",
             "x-apikey": vt_api_key}
-            url = "https://www.virustotal.com/api/v3/ip_addresses/"
+            url_vt = "https://www.virustotal.com/api/v3/ip_addresses/"
 
-            ip_to_search=input_ip
-            response = requests.get(url+ip_to_search, headers=headers)
-            if response.status_code==200:
-                return response.text
+            response_vt = requests.get(url_vt+ip_to_search, headers=headers)
+
+            # Results from iplocation
+            url_ipl = f"https://api.iplocation.net/?ip={ip_to_search}"
+            response_ipl=requests.get(url_ipl)
+
+            if response_vt.status_code==200 and response_ipl.status_code==200:
+                results=f"Results from source1:\n{response_vt.text}\n\nResults from source 2:\nresponse_ipl.text"
+                return results
             else:
                 return "Provided input is not a correct IP address"
         tools=[get_ip_all_details]
