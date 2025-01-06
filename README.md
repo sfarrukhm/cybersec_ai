@@ -1,7 +1,5 @@
 # CYBERSEC.AI:  IP Investigator
 
-A brief description of your project.
-
 ## Installation and Usage
 
 Follow these steps to set up and run the project:
